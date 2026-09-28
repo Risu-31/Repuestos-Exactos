@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: theme.primaryColor.withOpacity(0.2),
+                  backgroundColor: theme.primaryColor.withValues(alpha: 0.2),
                   child: Icon(Icons.person_outline, color: theme.primaryColor, size: 28),
                 ),
                 const SizedBox(width: 16),
@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                       Text(
                         'Taller Mecánico Central',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
+                          color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
@@ -64,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       theme.primaryColor,
-                      theme.primaryColor.withOpacity(0.8),
+                      theme.primaryColor.withValues(alpha: 0.8),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: theme.primaryColor.withOpacity(0.4),
+                      color: theme.primaryColor.withValues(alpha: 0.4),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -83,7 +83,7 @@ class HomeScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -105,7 +105,7 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       'Conectar y cotizar repuestos',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                       ),
                     ),
@@ -174,11 +174,11 @@ class _StatCard extends StatelessWidget {
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.dividerColor.withOpacity(0.1),
+          color: theme.dividerColor.withValues(alpha: 0.1),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -200,7 +200,7 @@ class _StatCard extends StatelessWidget {
           Text(
             subtitle,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.textTheme.bodyLarge?.color?.withOpacity(0.7),
+              color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
             ),
           ),
         ],

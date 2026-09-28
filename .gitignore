@@ -138,3 +138,18 @@ devtools_options.yaml
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
+
+# External tools
+/tools/archify/
+.agents/skills/archify/
+
+# Environment & Sensitive files (Regla 0)
+.env
+.env.*
+*.env
+*.key
+*.pem
+*.cert
+credentials.json
+google-services.json
+GoogleService-Info.plist

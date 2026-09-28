@@ -51,7 +51,7 @@ final GoRouter appRouter = GoRouter(
 class AppShell extends StatelessWidget {
   final Widget child;
 
-  const AppShell({Key? key, required this.child}) : super(key: key);
+  const AppShell({super.key, required this.child});
 
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;

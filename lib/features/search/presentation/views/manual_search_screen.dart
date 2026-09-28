@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 
 class ManualSearchScreen extends StatelessWidget {
-  const ManualSearchScreen({Key? key}) : super(key: key);
+  const ManualSearchScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

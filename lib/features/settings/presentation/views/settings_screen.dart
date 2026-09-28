@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:autoscan/core/theme/theme_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

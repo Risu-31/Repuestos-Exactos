@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:autoscan/data/models/diagnostic.dart';
 
 class DiagnosticScreen extends StatefulWidget {
-  const DiagnosticScreen({Key? key}) : super(key: key);
+  const DiagnosticScreen({super.key});
 
   @override
   State<DiagnosticScreen> createState() => _DiagnosticScreenState();
@@ -123,9 +123,9 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.1),
+                color: Colors.redAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.redAccent.withOpacity(0.5)),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5)),
               ),
               child: Column(
                 children: [
@@ -158,7 +158,7 @@ class _DiagnosticScreenState extends State<DiagnosticScreen> {
             ),
             const SizedBox(height: 16),
             // Matriz Comparativa
-            ..._report!.partOptions.map((opt) => _PartOptionCard(option: opt)).toList(),
+            ..._report!.partOptions.map((opt) => _PartOptionCard(option: opt)),
           ],
         ),
       );
@@ -187,11 +187,11 @@ class _PartOptionCard extends StatelessWidget {
   String _getTypeString() {
     switch (option.type) {
       case PartType.genuino:
-        return 'GENUINO';
+        return 'ÓPTIMO / OEM';
       case PartType.oem:
-        return 'OEM';
+        return 'PRÁCTICO / EQUILIBRADO';
       case PartType.alternativo:
-        return 'ALTERNATIVO';
+        return 'ECONÓMICO';
     }
   }
 
@@ -228,7 +228,7 @@ class _PartOptionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(0.1),
+                    color: theme.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -248,7 +248,7 @@ class _PartOptionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.1),
+                    color: riskColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

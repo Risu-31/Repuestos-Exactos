@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({Key? key}) : super(key: key);
+  const HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class HistoryScreen extends StatelessWidget {
               leading: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isCompleted ? Colors.green.withOpacity(0.1) : theme.primaryColor.withOpacity(0.1),
+                  color: isCompleted ? Colors.green.withValues(alpha: 0.1) : theme.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

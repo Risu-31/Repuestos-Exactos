@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Teoria del Proyecto - Arquitectura de 7 Capas",
+    "output": "teoria_7_capas.architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "full-pipeline",
+        "label": "Flujo Integral de 7 Capas",
+        "focus": ["vehiculo_can", "obd_hardware", "adquisicion_dart", "identificacion_vin", "motor_cotizacion", "algoritmo_analitico", "interfaz_flutter", "mecanico"],
+        "note": "Traza completa desde la falla en el vehiculo hasta la decision informada de compra."
+      },
+      {
+        "id": "telemetry-capture",
+        "label": "Captura y Normalizacion (Capas 1-4)",
+        "focus": ["vehiculo_can", "obd_hardware", "adquisicion_dart", "identificacion_vin"],
+        "note": "Extraccion de codigos DTC, telemetria CAN y decodificacion de VIN vehicular."
+      },
+      {
+        "id": "analytics-decision",
+        "label": "Cotizacion y Recomendacion (Capas 5-7)",
+        "focus": ["motor_cotizacion", "algoritmo_analitico", "interfaz_flutter", "mecanico"],
+        "note": "Cotizacion multifuente, matriz de 3 perfiles y visualizacion en taller."
+      }
+    ]
+  },
+  "components": [
+    { "id": "vehiculo_can", "type": "external", "label": "1. Red CAN Bus", "sublabel": "ISO 11898 / ECU", "pos": [40, 140], "size": [130, 60] },
+    { "id": "obd_hardware", "type": "external", "label": "2. Enlace OBD-II", "sublabel": "SAE J1978 / BLE", "pos": [260, 140], "size": [130, 60] },
+    { "id": "adquisicion_dart", "type": "backend", "label": "3. Adquisicion Dart", "sublabel": "Streams & Channels", "pos": [480, 140], "size": [130, 60] },
+    { "id": "identificacion_vin", "type": "backend", "label": "4. Mapeo Vehicular", "sublabel": "ISO 3779 / VIN", "pos": [700, 140], "size": [130, 60] },
+    { "id": "motor_cotizacion", "type": "cloud", "label": "5. Cotizador Multi", "sublabel": "APIs E-commerce / BD", "pos": [700, 340], "size": [130, 60] },
+    { "id": "algoritmo_analitico", "type": "backend", "label": "6. Algoritmo Matriz", "sublabel": "Eco / Equilib / OEM", "pos": [480, 340], "size": [130, 60] },
+    { "id": "interfaz_flutter", "type": "frontend", "label": "7. Interfaz Flutter", "sublabel": "UI Movil & Web", "pos": [260, 340], "size": [130, 60] },
+    { "id": "mecanico", "type": "external", "label": "Taller Mecanico", "sublabel": "Decision de Compra", "pos": [40, 340], "size": [130, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Hardware Automotriz & Captura", "wraps": ["vehiculo_can", "obd_hardware"], "pad": 16 },
+    { "kind": "security-group", "label": "Plataforma de Software Repuestos Exactos", "wraps": ["adquisicion_dart", "identificacion_vin", "motor_cotizacion", "algoritmo_analitico", "interfaz_flutter"], "pad": 18 }
+  ],
+  "connections": [
+    { "id": "can-to-obd", "from": "vehiculo_can", "to": "obd_hardware", "label": "Tramas CAN", "variant": "emphasis", "labelDy": -14 },
+    { "id": "obd-to-dart", "from": "obd_hardware", "to": "adquisicion_dart", "label": "BLE / SPP", "variant": "emphasis", "labelDy": -14 },
+    { "id": "dart-to-vin", "from": "adquisicion_dart", "to": "identificacion_vin", "label": "DTC & VIN", "labelDy": -14 },
+    { "id": "vin-to-quote", "from": "identificacion_vin", "to": "motor_cotizacion", "label": "Mapeo Auto", "fromSide": "bottom", "toSide": "top", "labelAt": [765, 270] },
+    { "id": "quote-to-algo", "from": "motor_cotizacion", "to": "algoritmo_analitico", "label": "Precios", "fromSide": "left", "toSide": "right", "labelDy": -14 },
+    { "id": "algo-to-ui", "from": "algoritmo_analitico", "to": "interfaz_flutter", "label": "3 Perfiles", "fromSide": "left", "toSide": "right", "labelDy": -14 },
+    { "id": "ui-to-user", "from": "interfaz_flutter", "to": "mecanico", "label": "Reporte", "variant": "emphasis", "fromSide": "left", "toSide": "right", "labelDy": -14 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Captura & Hardware (Capas 1-3)", "items": ["Tramas CAN bus a bordo (ISO 11898)", "Conexion OBD-II inalambrica vía Bluetooth BLE", "Procesamiento asincrono con Streams de Dart"] },
+    { "dot": "emerald", "title": "Mapeo & Analitica (Capas 4-6)", "items": ["Decodificacion universal de VIN bajo norma ISO 3779", "Busqueda concurrente en Mercado Libre y catalogos locales", "Matriz comparativa: Economico, Equilibrado y Optimo OEM"] },
+    { "dot": "violet", "title": "Entrega & Taller (Capa 7)", "items": ["Interfaz visual moderna, formal y clara en Flutter", "Reduccion de tiempos de cotizacion y compra en el taller"] }
+  ]
+}

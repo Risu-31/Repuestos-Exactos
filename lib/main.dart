@@ -16,7 +16,7 @@ void main() {
 }
 
 class RepuestosExactosApp extends StatelessWidget {
-  const RepuestosExactosApp({Key? key}) : super(key: key);
+  const RepuestosExactosApp({super.key});
 
   @override
   Widget build(BuildContext context) {

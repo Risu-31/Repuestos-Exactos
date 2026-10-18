@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:provider/provider.dart';
+import 'package:autoscan/features/auth/presentation/controllers/auth_controller.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -8,6 +9,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final auth = context.watch<AuthController>();
+    final userName = auth.session?.name ?? "";
 
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +34,11 @@ class HomeScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: theme.primaryColor.withValues(alpha: 0.2),
-                  child: Icon(Icons.person_outline, color: theme.primaryColor, size: 28),
+                  child: Icon(
+                    Icons.person_outline,
+                    color: theme.primaryColor,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -39,13 +46,15 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hola, Carlos',
+                        'Hola, $userName',
                         style: theme.textTheme.titleLarge,
                       ),
                       Text(
-                        'Taller Mecánico Central',
+                        auth.workshop?.name ?? 'Tu taller',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
+                          color: theme.textTheme.bodyLarge?.color?.withValues(
+                            alpha: 0.7,
+                          ),
                         ),
                       ),
                     ],
@@ -59,7 +68,10 @@ class HomeScreen extends StatelessWidget {
             GestureDetector(
               onTap: () => context.push('/diagnostic'),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 32,
+                  horizontal: 24,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -167,15 +179,13 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.dividerColor.withValues(alpha: 0.1),
-        ),
+        border: Border.all(color: theme.dividerColor.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),

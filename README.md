@@ -1,5 +1,7 @@
 # Repuestos Exactos
 
+> **Integración actual:** login con RE-api, sesión Bearer, datos reales del taller en Inicio y Ajustes e historial de diagnósticos con filtros y paginación, además de búsqueda real de catálogo y compatibilidad. Guía: [Conexión con la API](docs/conexion_api.md). La captura de diagnósticos conserva su alcance de prototipo. Guía de búsqueda: [Búsqueda conectada](docs/busqueda.md).
+
 > **"Para mecánicos de talleres automotrices que sufren de falta de información al cotizar repuestos, Repuestos Exactos interpreta el diagnóstico OBD2 y entrega una matriz comparativa instantánea basada en coste, durabilidad y riesgos, optimizando el tiempo y la decisión de compra."**
 
 ---

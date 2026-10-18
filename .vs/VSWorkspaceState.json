@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\.agents\\skills",
+    "\\.agents\\skills\\clean-architecture-folder-structure",
+    "\\.agents\\skills\\dart-flutter-mobile-expert",
+    "\\android",
+    "\\docs",
+    "\\web\\icons",
+    "\\windows\\flutter",
+    "\\windows\\runner",
+    "\\windows\\runner\\resources"
+  ],
+  "SelectedNode": "\\android",
+  "PreviewInSolutionExplorer": false
+}

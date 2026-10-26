@@ -1,0 +1,9 @@
+workspace:
+  id: e5ef5437-6648-4d76-8c96-eac068b67836
+
+localResources:
+  specs:
+    - ../postman/specs/New Specification/New Specification.graphql
+resourceNameMappings:
+  specs:
+    - ../postman/specs/New Specification/New Specification.graphql: New Specification

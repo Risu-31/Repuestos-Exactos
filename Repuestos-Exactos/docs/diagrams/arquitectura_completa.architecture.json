@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Repuestos Exactos - Arquitectura Completa del Sistema",
+    "output": "arquitectura_completa.architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "full-flow",
+        "label": "Flujo Integral Extremo a Extremo",
+        "focus": ["mecanico", "propietario", "ui_presentation", "feature_diagnostic", "feature_search", "feature_history", "domain_core", "ble_client", "obd_scanner", "data_sync", "local_db"],
+        "note": "Interaccion completa entre clientes, capas de la aplicacion y servicios externos."
+      },
+      {
+        "id": "client-interaction",
+        "label": "Interaccion Taller y Cliente",
+        "focus": ["mecanico", "propietario", "ui_presentation", "feature_history"],
+        "note": "El mecanico opera la app y entrega un informe comprensible con opciones al cliente."
+      },
+      {
+        "id": "diagnostic-hardware",
+        "label": "Diagnostico OBD-II y Telemetria",
+        "focus": ["ui_presentation", "feature_diagnostic", "domain_core", "ble_client", "obd_scanner"],
+        "note": "Comunicacion directa por Bluetooth con el conector del auto para leer fallas DTC."
+      },
+      {
+        "id": "quote-analytics",
+        "label": "Cotizacion Multifuente y Datos",
+        "focus": ["feature_search", "domain_core", "data_sync", "local_db"],
+        "note": "Busqueda en tiempo real de precios de repuestos y persistencia local offline."
+      }
+    ]
+  },
+  "components": [
+    { "id": "mecanico", "type": "external", "label": "Mecanico Taller", "sublabel": "Operador App", "pos": [40, 200], "size": [130, 60] },
+    { "id": "propietario", "type": "external", "label": "Cliente / Dueno", "sublabel": "Receptor Informe", "pos": [40, 420], "size": [130, 60] },
+    { "id": "ui_presentation", "type": "frontend", "label": "Flutter UI Layer", "sublabel": "Views & go_router", "pos": [250, 310], "size": [140, 64] },
+    { "id": "feature_diagnostic", "type": "backend", "label": "Mod. Diagnostico", "sublabel": "DTCs & Matriz 3P", "pos": [470, 160], "size": [140, 60] },
+    { "id": "feature_search", "type": "backend", "label": "Mod. Busqueda", "sublabel": "Decodificador VIN", "pos": [470, 310], "size": [140, 60] },
+    { "id": "feature_history", "type": "backend", "label": "Mod. Historial", "sublabel": "Reportes & Offline", "pos": [470, 460], "size": [140, 60] },
+    { "id": "domain_core", "type": "backend", "label": "Domain Core", "sublabel": "UseCases & Reglas", "pos": [690, 310], "size": [140, 64] },
+    { "id": "ble_client", "type": "backend", "label": "Cliente BLE", "sublabel": "Streams & OBD-II", "pos": [920, 160], "size": [130, 60] },
+    { "id": "data_sync", "type": "cloud", "label": "Cotizador APIs", "sublabel": "MercadoLibre / Web", "pos": [920, 310], "size": [130, 60] },
+    { "id": "local_db", "type": "database", "label": "SQLite Local", "sublabel": "Persistencia Offline", "pos": [920, 460], "size": [130, 60] },
+    { "id": "obd_scanner", "type": "external", "label": "Escaner OBD-II", "sublabel": "Auto / Bus CAN", "pos": [1140, 160], "size": [130, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Taller Automotriz (Usuarios)", "wraps": ["mecanico", "propietario"], "pad": 16 },
+    { "kind": "security-group", "label": "App Repuestos Exactos (Flutter / Clean Architecture)", "wraps": ["ui_presentation", "feature_diagnostic", "feature_search", "feature_history", "domain_core", "ble_client"], "pad": 18 },
+    { "kind": "region", "label": "Servicios & Almacenamiento", "wraps": ["data_sync", "local_db"], "pad": 16 }
+  ],
+  "connections": [
+    { "id": "mecanico-to-ui", "from": "mecanico", "to": "ui_presentation", "label": "Control / Escaneo", "variant": "emphasis" },
+    { "id": "ui-to-propietario", "from": "ui_presentation", "to": "propietario", "label": "Informe Claro", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "ui-to-diag", "from": "ui_presentation", "to": "feature_diagnostic", "label": "Iniciar Scan", "fromSide": "top", "toSide": "left" },
+    { "id": "ui-to-search", "from": "ui_presentation", "to": "feature_search", "label": "Consultar" },
+    { "id": "ui-to-history", "from": "ui_presentation", "to": "feature_history", "label": "Atenciones", "fromSide": "bottom", "toSide": "left" },
+    { "id": "diag-to-domain", "from": "feature_diagnostic", "to": "domain_core", "label": "Evaluar DTC", "fromSide": "right", "toSide": "top" },
+    { "id": "search-to-domain", "from": "feature_search", "to": "domain_core", "label": "Compatibilidad" },
+    { "id": "history-to-domain", "from": "feature_history", "to": "domain_core", "label": "Auditoria", "fromSide": "right", "toSide": "bottom" },
+    { "id": "domain-to-ble", "from": "domain_core", "to": "ble_client", "label": "PIDs / DTCs", "fromSide": "top", "toSide": "left" },
+    { "id": "domain-to-quote", "from": "domain_core", "to": "data_sync", "label": "Precios" },
+    { "id": "domain-to-db", "from": "domain_core", "to": "local_db", "label": "Guardar", "fromSide": "bottom", "toSide": "left" },
+    { "id": "ble-to-obd", "from": "ble_client", "to": "obd_scanner", "label": "Bluetooth", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Valor para el Cliente", "items": ["El mecanico traduce la falla tecnica en 3 opciones claras", "Presupuesto transparente basado en costo, durabilidad y riesgo", "Historial completo de atenciones y repuestos instalados"] },
+    { "dot": "emerald", "title": "Modularidad Interna (Clean Architecture)", "items": ["UI desacoplada por features (Diagnostico, Busqueda, Historial)", "Dominio puro con reglas de cotizacion y clasificacion analitica", "Navegacion fluida con go_router y soporte responsive movil/web"] },
+    { "dot": "amber", "title": "Hardware & Conectividad Externa", "items": ["Lectura en tiempo real del bus CAN del auto via BLE", "Cotizacion multifuente con APIs e-commerce", "Persistencia SQLite para trabajo continuo sin conexion"] }
+  ]
+}

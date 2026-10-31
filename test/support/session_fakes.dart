@@ -7,6 +7,7 @@ import 'package:autoscan/features/settings/domain/repositories/settings_reposito
 
 AuthSession testSession({
   String name = 'Carla Fuentes',
+  String role = 'propietario',
   String workshopId = '22222222-2222-4222-8222-222222222222',
 }) => AuthSession(
   accessToken: List.filled(43, 'A').join(),
@@ -14,7 +15,7 @@ AuthSession testSession({
   userId: '11111111-1111-4111-8111-111111111111',
   workshopId: workshopId,
   name: name,
-  role: 'admin',
+  role: role,
 );
 
 const testWorkshop = WorkshopSettings(

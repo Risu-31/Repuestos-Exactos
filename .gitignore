@@ -155,3 +155,6 @@ google-services.json
 GoogleService-Info.plist
 
 .vs/
+
+# Estado local de herramientas Flutter.
+.flutter_tool_state

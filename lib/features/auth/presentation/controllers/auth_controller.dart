@@ -62,6 +62,44 @@ class AuthController extends ChangeNotifier {
     }
   }
 
+  /// Excluye solicitudes de contraseña mientras se verifica Google.
+  bool beginExternalLogin() {
+    if (_disposed || busy) return false;
+    _generation++;
+    busy = true;
+    errorMessage = null;
+    _notify();
+    return true;
+  }
+
+  void endExternalLogin() {
+    if (!_disposed) {
+      busy = false;
+      _notify();
+    }
+  }
+
+  /// Recibe una sesión validada por el repositorio de Google.
+  void acceptSession(AuthSession session) {
+    if (_disposed) return;
+    final remaining = session.expiresAt.difference(DateTime.now().toUtc());
+    if (remaining <= Duration.zero) {
+      invalidateSession();
+      return;
+    }
+    _generation++;
+    _session = session;
+    _workshop = null;
+    busy = false;
+    loadingWorkshop = false;
+    workshopError = null;
+    errorMessage = null;
+    _expiry?.cancel();
+    _expiry = Timer(remaining, invalidateSession);
+    _notify();
+    unawaited(refreshWorkshop());
+  }
+
   Future<void> refreshWorkshop() async {
     final current = _session;
     if (current == null || loadingWorkshop) return;

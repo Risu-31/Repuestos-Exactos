@@ -1,3 +1,4 @@
+import 'package:autoscan/features/team/presentation/views/team_screen.dart';
 import 'package:autoscan/features/search/domain/repositories/search_repository.dart';
 import 'package:autoscan/features/search/presentation/controllers/catalog_search_controller.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,11 @@ GoRouter createAppRouter(AuthController auth) => GoRouter(
     return onLogin ? '/home' : null;
   },
   routes: [
-    GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+    GoRoute(
+      path: '/login',
+      builder: (_, state) =>
+          LoginScreen(invitation: state.uri.queryParameters['invitation']),
+    ),
     ShellRoute(
       builder: (context, state, child) => AppShell(child: child),
       routes: [
@@ -49,6 +54,7 @@ GoRouter createAppRouter(AuthController auth) => GoRouter(
             child: const HistoryScreen(),
           ),
         ),
+        GoRoute(path: '/team', builder: (_, _) => const TeamScreen()),
         GoRoute(path: '/settings', builder: (_, _) => const SettingsScreen()),
       ],
     ),

@@ -16,7 +16,7 @@ class AuthSessionDto {
     );
     if (!RegExp(r'^[A-Za-z0-9_-]{43}$').hasMatch(token) ||
         expires == null ||
-        !{'admin', 'mecanico', 'auditor'}.contains(role) ||
+        !{'propietario', 'mecanico'}.contains(role) ||
         !uuid.hasMatch(userId) ||
         !uuid.hasMatch(workshopId) ||
         (accessToken == null && json['token_type'] != 'Bearer')) {

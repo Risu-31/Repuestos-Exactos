@@ -1,10 +1,12 @@
+import 'package:autoscan/features/auth/presentation/widgets/google_access_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:autoscan/features/auth/presentation/controllers/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.invitation});
+  final String? invitation;
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -185,6 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       )
                                     : const Text('Ingresar'),
                               ),
+                              GoogleAccessPanel(invitation: widget.invitation),
                             ],
                           ),
                         ),

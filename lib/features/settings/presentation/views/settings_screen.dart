@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:autoscan/core/theme/theme_provider.dart';
@@ -28,6 +29,18 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+          if (session?.isOwner == true)
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.groups_outlined),
+                title: const Text('Equipo del taller'),
+                subtitle: const Text(
+                  'Invitar personas y gestionar invitaciones',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/team'),
+              ),
+            ),
           Text('Tu taller', style: theme.textTheme.titleLarge),
           const SizedBox(height: 12),
           if (auth.loadingWorkshop)

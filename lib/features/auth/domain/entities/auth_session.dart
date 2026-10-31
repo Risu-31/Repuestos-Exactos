@@ -14,10 +14,11 @@ class AuthSession {
   final String name;
   final String role;
 
+  bool get isOwner => role == 'propietario';
+
   String get roleLabel => switch (role) {
-    'admin' => 'Administración',
-    'mecanico' => 'Mecánica',
-    'auditor' => 'Auditoría',
+    'propietario' => 'Propietario',
+    'mecanico' => 'Mecánico',
     _ => role,
   };
 }

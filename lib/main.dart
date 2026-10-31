@@ -1,3 +1,7 @@
+import 'package:autoscan/features/team/data/repositories/api_team_repository.dart';
+import 'package:autoscan/features/team/domain/repositories/team_repository.dart';
+import 'package:autoscan/features/auth/data/repositories/api_google_auth_repository.dart';
+import 'package:autoscan/features/auth/domain/repositories/google_auth_repository.dart';
 import 'package:autoscan/features/search/data/repositories/api_search_repository.dart';
 import 'package:autoscan/features/search/domain/repositories/search_repository.dart';
 import 'package:autoscan/features/history/data/repositories/api_history_repository.dart';
@@ -75,7 +79,12 @@ class _RepuestosExactosAppState extends State<RepuestosExactosApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _auth),
+        if (widget.authRepository == null)
+          Provider<GoogleAuthRepository>(
+            create: (_) => ApiGoogleAuthRepository(_client),
+          ),
         Provider<HistoryRepository>.value(value: _history),
+        Provider<TeamRepository>(create: (_) => ApiTeamRepository(_client)),
         Provider<SearchRepository>.value(value: _search),
       ],
       child: MaterialApp.router(

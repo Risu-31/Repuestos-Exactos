@@ -36,8 +36,16 @@ class ApiClient {
     if (_accessToken == token) _accessToken = null;
   }
 
-  Future<Object?> get(String path, {Map<String, dynamic>? queryParameters}) =>
-      _request('GET', path, queryParameters: queryParameters);
+  Future<Object?> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    bool authenticated = true,
+  }) => _request(
+    'GET',
+    path,
+    queryParameters: queryParameters,
+    authenticated: authenticated,
+  );
   Future<Object?> post(
     String path, {
     Object? data,
@@ -69,6 +77,40 @@ class ApiClient {
       return response.data;
     } on DioException catch (error) {
       final status = error.response?.statusCode;
+      final responseData = error.response?.data;
+      final code = responseData is Map ? responseData['error'] : null;
+      final authMessage = switch (code) {
+        'owner_required' =>
+          'Esta operación está reservada al propietario del taller.',
+        'mechanic_invitation_required' =>
+          'Sólo se pueden incorporar mecánicos mediante invitación.',
+        'owner_protected' => 'El propietario no se puede desactivar ni cambiar mediante esta operación.',
+        'profile_not_enabled' => 'Tu cuenta no tiene un perfil habilitado. Contacta al propietario del taller.',
+        'google_not_configured' => 'El ingreso con Google estará disponible próximamente. Puedes ingresar con tu contraseña.',
+        'google_unavailable' =>
+          'Google no está disponible. Intenta nuevamente.',
+        'invalid_google_token' || 'invalid_google_challenge' =>
+          'El acceso con Google venció. Vuelve a intentarlo.',
+        'invalid_onboarding_token' =>
+          'El registro venció. Vuelve a continuar con Google.',
+        'invalid_invitation' => 'La invitación no es válida, venció o corresponde a otro correo. Pide un nuevo enlace al administrador.',
+        'link_required' => 'Esta cuenta ya existe. Vincula Google confirmando tu contraseña actual.',
+        'already_linked' =>
+          'La cuenta ya está vinculada. Vuelve a ingresar con Google.',
+        'email_verification_required' => 'Para registrar un taller o aceptar una invitación usa una cuenta Gmail o Google Workspace.',
+        'account_disabled' =>
+          'Tu cuenta o taller está desactivado. Contacta al administrador.',
+        'already_member' => 'La persona ya pertenece a tu taller.',
+        'account_conflict' => 'La cuenta ya fue registrada. Vuelve a ingresar.',
+        'invalid_workshop_name' =>
+          'Ingresa un nombre de taller entre 2 y 120 caracteres.',
+        'too_many_attempts' || 'invitation_limit' =>
+          'Se alcanzó el límite de solicitudes. Intenta más tarde.',
+        _ => null,
+      };
+      if (authMessage != null) {
+        throw AppFailure(authMessage, statusCode: status);
+      }
       if (status == 401) {
         throw AppFailure(
           authenticated

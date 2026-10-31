@@ -153,3 +153,5 @@ devtools_options.yaml
 credentials.json
 google-services.json
 GoogleService-Info.plist
+
+.vs/

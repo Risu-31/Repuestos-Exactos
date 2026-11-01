@@ -9,7 +9,12 @@ class AppShell extends StatelessWidget {
   int _calculateSelectedIndex(BuildContext context) {
     final String location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/history')) return 1;
+    if (location.startsWith('/history') ||
+        location.startsWith('/saved-parts') ||
+        location.startsWith('/diagnostic/') ||
+        location.startsWith('/diagnostic-parts/')) {
+      return 1;
+    }
     if (location.startsWith('/search')) return 2;
     if (location.startsWith('/settings') || location.startsWith('/team')) {
       return 3;

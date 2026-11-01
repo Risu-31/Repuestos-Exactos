@@ -44,7 +44,7 @@ class ApiGoogleAuthRepository implements GoogleAuthRepository {
   AuthSession _session(Object? data) {
     try {
       final s = AuthSessionDto.parse(data);
-      _client.setAccessToken(s.accessToken);
+      _client.acceptLoginToken(s.accessToken);
       return s;
     } on FormatException {
       throw const AppFailure('El servicio devolvió una sesión inválida.');

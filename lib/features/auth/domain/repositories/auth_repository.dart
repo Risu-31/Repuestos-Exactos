@@ -6,4 +6,6 @@ abstract class AuthRepository {
   Future<AuthSession> verify(AuthSession session);
   Future<void> logout();
   void clearSession();
+  Future<AuthSession?> restoreSession() async => null;
+  set onSessionRenewed(void Function(AuthSession)? callback) {}
 }

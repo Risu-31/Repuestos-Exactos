@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
+import 'package:autoscan/features/offers/presentation/widgets/marketplace_search_panel.dart';
 import 'package:autoscan/features/search/presentation/controllers/catalog_search_controller.dart';
 import 'package:autoscan/features/search/presentation/widgets/dtc_search_field.dart';
 import 'package:autoscan/features/search/presentation/widgets/search_vehicle_filters.dart';
@@ -11,6 +13,7 @@ class ManualSearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<CatalogSearchController>();
     final theme = Theme.of(context);
+    final offersRepository = context.watch<OffersRepository?>();
     final accent = theme.brightness == Brightness.dark
         ? theme.colorScheme.secondary
         : theme.primaryColor;
@@ -37,6 +40,22 @@ class ManualSearchScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     const SearchVehicleFilters(),
                     const SizedBox(height: 20),
+                    if (offersRepository != null && state.selectedCode != null)
+                      MarketplaceSearchPanel(
+                        key: ValueKey(
+                          [
+                            state.selectedCode!.code,
+                            state.modelId,
+                            state.year,
+                            state.vehicleMatch?.id,
+                          ].join('|'),
+                        ),
+                        repository: offersRepository,
+                        code: state.selectedCode!.code,
+                        model: state.modelId,
+                        year: state.year,
+                        vehicleId: state.vehicleMatch?.id,
+                      ),
                     FilledButton.icon(
                       key: const Key('search-parts-submit'),
                       style: FilledButton.styleFrom(

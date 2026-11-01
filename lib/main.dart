@@ -1,3 +1,8 @@
+import 'package:autoscan/features/diagnostic/domain/repositories/diagnostic_sessions_repository.dart';
+import 'package:autoscan/features/diagnostic/domain/repositories/diagnostic_scanner.dart';
+import 'package:autoscan/features/diagnostic/data/repositories/api_diagnostic_sessions_repository.dart';
+import 'package:autoscan/features/diagnostic/data/repositories/obd_diagnostic_scanner.dart';
+import 'package:autoscan/features/diagnostic/data/transports/web_serial_factory.dart';
 import 'package:autoscan/features/team/data/repositories/api_team_repository.dart';
 import 'package:autoscan/features/team/domain/repositories/team_repository.dart';
 import 'package:autoscan/features/auth/data/repositories/api_google_auth_repository.dart';
@@ -7,6 +12,11 @@ import 'package:autoscan/features/search/domain/repositories/search_repository.d
 import 'package:autoscan/features/history/data/repositories/api_history_repository.dart';
 import 'package:autoscan/features/history/domain/repositories/history_repository.dart';
 import 'package:flutter/material.dart';
+
+import 'dart:async';
+
+import 'package:autoscan/features/offers/data/repositories/api_offers_repository.dart';
+import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:autoscan/core/network/api_client.dart';
@@ -36,11 +46,17 @@ class RepuestosExactosApp extends StatefulWidget {
     this.settingsRepository,
     this.historyRepository,
     this.searchRepository,
+    this.offersRepository,
+    this.diagnosticRepository,
+    this.scannerFactory,
   });
   final AuthRepository? authRepository;
   final SettingsRepository? settingsRepository;
   final HistoryRepository? historyRepository;
   final SearchRepository? searchRepository;
+  final OffersRepository? offersRepository;
+  final DiagnosticSessionsRepository? diagnosticRepository;
+  final DiagnosticScanner Function()? scannerFactory;
   @override
   State<RepuestosExactosApp> createState() => _RepuestosExactosAppState();
 }
@@ -63,6 +79,7 @@ class _RepuestosExactosAppState extends State<RepuestosExactosApp> {
     _history = widget.historyRepository ?? ApiHistoryRepository(_client);
     _search = widget.searchRepository ?? ApiSearchRepository(_client);
     _router = createAppRouter(_auth);
+    unawaited(_auth.restoreSession());
   }
 
   @override
@@ -83,9 +100,24 @@ class _RepuestosExactosAppState extends State<RepuestosExactosApp> {
           Provider<GoogleAuthRepository>(
             create: (_) => ApiGoogleAuthRepository(_client),
           ),
+        Provider<DiagnosticSessionsRepository>(
+          create: (_) =>
+              widget.diagnosticRepository ??
+              ApiDiagnosticSessionsRepository(_client),
+        ),
+        Provider<DiagnosticScanner Function()>(
+          create: (_) =>
+              widget.scannerFactory ??
+              () => ObdDiagnosticScanner(createObdTransport()),
+        ),
         Provider<HistoryRepository>.value(value: _history),
         Provider<TeamRepository>(create: (_) => ApiTeamRepository(_client)),
         Provider<SearchRepository>.value(value: _search),
+        if (widget.offersRepository != null || widget.authRepository == null)
+          Provider<OffersRepository>(
+            create: (_) =>
+                widget.offersRepository ?? ApiOffersRepository(_client),
+          ),
       ],
       child: MaterialApp.router(
         title: 'Repuestos Exactos',

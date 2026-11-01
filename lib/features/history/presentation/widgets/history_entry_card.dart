@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:autoscan/features/history/domain/entities/history_entry.dart';
 import 'package:autoscan/features/history/domain/entities/history_status.dart';
@@ -86,6 +87,7 @@ class HistoryEntryCard extends StatelessWidget {
               '${entry.userName} · ${entry.method == 'manual' ? 'Ingreso manual' : 'OBD Bluetooth'}',
               style: theme.textTheme.bodySmall,
             ),
+            TextButton.icon(onPressed:()=>context.go('/diagnostic/${entry.id}'),icon:const Icon(Icons.list_alt),label:const Text('Ver diagnóstico')),
           ],
         ),
       ),

@@ -94,3 +94,9 @@ Abre tu navegador y entra a:
 1. Presiona **`F12`** en la ventana del navegador.
 2. Presiona **`Ctrl` + `Shift` + `M`** (Modo Dispositivo).
 3. Selecciona **iPhone 14 Pro Max** o **Pixel 7** en la parte superior y pon el zoom al **100%**.
+
+## Referencias de Mercado Libre
+
+En Búsqueda, selecciona una falla y el componente a revisar. «Buscar en Mercado Libre» consulta el proveedor; «Guardar alternativa» registra una referencia con nota. Se consultan desde Historial → Alternativas guardadas. Los resultados de catálogo técnico se identifican sin precio ni disponibilidad confirmada. El catálogo local conserva su funcionamiento.
+
+[Contrato, configuración y límites del incremento](../Backend_Repuestos_Exactos/docs/integracion_mercadolibre.md).

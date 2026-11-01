@@ -70,6 +70,9 @@ class ApiClient {
         data: data,
         options: Options(
           method: method,
+          receiveTimeout: path == '/offers/search'
+              ? const Duration(seconds: 25)
+              : null,
           headers: {if (token != null) 'authorization': 'Bearer $token'},
           extra: {'sessionToken': ?token},
         ),
@@ -80,6 +83,25 @@ class ApiClient {
       final responseData = error.response?.data;
       final code = responseData is Map ? responseData['error'] : null;
       final authMessage = switch (code) {
+        'mercadolibre_not_configured' => 'Mercado Libre todavía no está configurado. Puedes seguir usando el catálogo local.',
+        'mercadolibre_authorization_required' =>
+          'Es necesario autorizar la cuenta de Mercado Libre en el servidor.',
+        'provider_access_denied' => 'Mercado Libre no autorizó la búsqueda de publicaciones para esta aplicación. El catálogo local sigue disponible.',
+        'provider_rate_limited' =>
+          'Mercado Libre alcanzó su límite de consultas. Intenta más tarde.',
+        'provider_timeout' ||
+        'provider_unavailable' ||
+        'provider_invalid_response' =>
+          'No pudimos consultar Mercado Libre. Intenta nuevamente.',
+        'offer_expired' =>
+          'La oferta venció. Repite la búsqueda antes de guardar.',
+        'idempotency_conflict' =>
+          'Esta solicitud ya se usó para otra selección. Repite la búsqueda.',
+        'invalid_dtc_component' =>
+          'Selecciona un componente asociado a esta falla.',
+        'invalid_vehicle_context' ||
+        'invalid_diagnostic_context' ||
+        'invalid_saved_context' => 'El vehículo o diagnóstico ya no está disponible para guardar esta alternativa.',
         'owner_required' =>
           'Esta operación está reservada al propietario del taller.',
         'mechanic_invitation_required' =>

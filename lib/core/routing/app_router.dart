@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:autoscan/features/history/domain/repositories/history_repository.dart';
 import 'package:autoscan/features/history/presentation/controllers/history_controller.dart';
 import 'package:go_router/go_router.dart';
+import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
+import 'package:autoscan/features/offers/presentation/controllers/saved_parts_controller.dart';
+import 'package:autoscan/features/offers/presentation/views/saved_parts_screen.dart';
 import 'package:autoscan/core/routing/app_shell.dart';
 import 'package:autoscan/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:autoscan/features/auth/presentation/views/login_screen.dart';
@@ -52,6 +55,15 @@ GoRouter createAppRouter(AuthController auth) => GoRouter(
             create: (_) =>
                 HistoryController(context.read<HistoryRepository>())..refresh(),
             child: const HistoryScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/saved-parts',
+          builder: (context, _) => ChangeNotifierProvider(
+            create: (_) =>
+                SavedPartsController(context.read<OffersRepository>())
+                  ..refresh(),
+            child: const SavedPartsScreen(),
           ),
         ),
         GoRoute(path: '/team', builder: (_, _) => const TeamScreen()),

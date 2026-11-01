@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
 import 'package:autoscan/features/history/domain/entities/history_status.dart';
 import 'package:autoscan/features/history/presentation/controllers/history_controller.dart';
 import 'package:autoscan/features/history/presentation/widgets/history_entry_card.dart';
@@ -16,6 +18,12 @@ class HistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Historial de diagnósticos'),
         actions: [
+          if (context.watch<OffersRepository?>() != null)
+            IconButton(
+              tooltip: 'Alternativas guardadas',
+              onPressed: () => context.go('/saved-parts'),
+              icon: const Icon(Icons.bookmarks_outlined),
+            ),
           IconButton(
             tooltip: 'Actualizar historial',
             onPressed: controller.loading ? null : controller.refresh,

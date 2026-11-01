@@ -7,6 +7,8 @@ import 'package:autoscan/features/search/domain/repositories/search_repository.d
 import 'package:autoscan/features/history/data/repositories/api_history_repository.dart';
 import 'package:autoscan/features/history/domain/repositories/history_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:autoscan/features/offers/data/repositories/api_offers_repository.dart';
+import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:autoscan/core/network/api_client.dart';
@@ -36,11 +38,13 @@ class RepuestosExactosApp extends StatefulWidget {
     this.settingsRepository,
     this.historyRepository,
     this.searchRepository,
+    this.offersRepository,
   });
   final AuthRepository? authRepository;
   final SettingsRepository? settingsRepository;
   final HistoryRepository? historyRepository;
   final SearchRepository? searchRepository;
+  final OffersRepository? offersRepository;
   @override
   State<RepuestosExactosApp> createState() => _RepuestosExactosAppState();
 }
@@ -86,6 +90,11 @@ class _RepuestosExactosAppState extends State<RepuestosExactosApp> {
         Provider<HistoryRepository>.value(value: _history),
         Provider<TeamRepository>(create: (_) => ApiTeamRepository(_client)),
         Provider<SearchRepository>.value(value: _search),
+        if (widget.offersRepository != null || widget.authRepository == null)
+          Provider<OffersRepository>(
+            create: (_) =>
+                widget.offersRepository ?? ApiOffersRepository(_client),
+          ),
       ],
       child: MaterialApp.router(
         title: 'Repuestos Exactos',

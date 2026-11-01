@@ -27,9 +27,17 @@ const testWorkshop = WorkshopSettings(
   retentionYears: 6,
 );
 
-class FakeAuthRepository implements AuthRepository {
+class FakeAuthRepository extends AuthRepository {
   AuthSession result = testSession();
   Exception? loginError;
+  Future<AuthSession?> Function()? restoreAction;
+  void Function(AuthSession)? renewed;
+  @override
+  Future<AuthSession?> restoreSession() async =>
+      restoreAction == null ? null : await restoreAction!();
+  @override
+  set onSessionRenewed(void Function(AuthSession)? callback) =>
+      renewed = callback;
   Exception? verifyError;
   Exception? logoutError;
   int loginCalls = 0;

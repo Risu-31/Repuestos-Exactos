@@ -1,6 +1,6 @@
 # Repuestos Exactos
 
-> **Integración actual:** login con RE-api, sesión Bearer, datos reales del taller en Inicio y Ajustes e historial de diagnósticos con filtros y paginación, además de búsqueda real de catálogo y compatibilidad. Guía: [Conexión con la API](docs/conexion_api.md). La captura de diagnósticos conserva su alcance de prototipo. Guía de búsqueda: [Búsqueda conectada](docs/busqueda.md).
+> **Integración actual:** login con RE-api, sesión Bearer, datos reales del taller en Inicio y Ajustes e historial de diagnósticos con filtros y paginación, además de búsqueda real de catálogo y compatibilidad. Guía: [Conexión con la API](docs/conexion_api.md). La captura OBD y VIN está implementada en Windows/Chrome y mantiene pendiente su aceptación física con el adaptador. Guía de búsqueda: [Búsqueda conectada](docs/busqueda.md).
 
 > **"Para mecánicos de talleres automotrices que sufren de falta de información al cotizar repuestos, Repuestos Exactos interpreta el diagnóstico OBD2 y entrega una matriz comparativa instantánea basada en coste, durabilidad y riesgos, optimizando el tiempo y la decisión de compra."**
 
@@ -133,3 +133,13 @@ Al guardar, la API contrasta el VIN: completa el campo existente del vehículo �
 V016 añade Peugeot / 3008 al catálogo para la prueba prevista con un auto de 2017. No crea el auto ni una identidad ficticia. La compatibilidad y lectura real de ese vehículo siguen pendientes de prueba con el adaptador.
 
 Referencia de protocolo: [ELM327, respuestas multilínea y VIN](https://www.elmelectronics.com/wp-content/uploads/2016/07/ELM327DSH.pdf#page=42).
+
+## Sesión persistente en web
+
+Desde V017, al recargar se restaura la sesión antes de mostrar el login. El acceso dura una hora y se renueva automáticamente con una cookie HttpOnly que tiene un límite absoluto de siete días. Las sesiones completas sobreviven reinicios de la API porque PostgreSQL conserva sus hashes. Después de instalar este incremento se debe ingresar una vez para crear la cookie; no se migran tokens previos en memoria.
+
+Cerrar sesión revoca la familia y elimina la cookie. Ante cierre sin red, la aplicación conserva sólo una bandera de intención de salida para no reingresar automáticamente al recargar. Ningún token se almacena en localStorage. Una falla temporal al restaurar muestra Reintentar; una sesión vencida o revocada vuelve al login. La renovación no elimina la posible selección de cuenta de Google cuando realmente hace falta autenticarse otra vez.
+
+Usar el mismo hostname en web y API (localhost/localhost o 127.0.0.1/127.0.0.1). En producción: HTTPS, mismo sitio y CORS con orígenes exactos. La persistencia automática implementada aquí es web; las plataformas nativas mantienen su alcance previo.
+
+[Contrato y límites](../Backend_Repuestos_Exactos/docs/autenticacion.md) · [Evidencia de validación](../Backend_Repuestos_Exactos/docs/evidencia/sesiones_persistentes_validacion.json).

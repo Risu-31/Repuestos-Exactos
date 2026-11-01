@@ -24,7 +24,7 @@ class ApiAuthRepository implements AuthRepository {
       throw const AppFailure("La solicitud fue cancelada.");
     }
     final session = _parse(data);
-    _client.setAccessToken(session.accessToken);
+    _client.acceptLoginToken(session.accessToken);
     return session;
   }
 
@@ -32,7 +32,7 @@ class ApiAuthRepository implements AuthRepository {
   Future<AuthSession> verify(AuthSession session) async {
     final fresh = _parse(
       await _client.get('/auth/me'),
-      accessToken: session.accessToken,
+      accessToken: _client.accessToken ?? session.accessToken,
     );
     if (fresh.userId != session.userId ||
         fresh.workshopId != session.workshopId ||
@@ -53,12 +53,26 @@ class ApiAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    final token = _client.accessToken;
-    try {
-      await _client.post('/auth/logout');
-    } finally {
-      _client.clearAccessTokenIfMatches(token);
+    _generation++;
+    await _client.endSession();
+  }
+
+  @override
+  Future<AuthSession?> restoreSession() async {
+    if (!_client.canRestoreSession) return null;
+    final generation = _generation;
+    final data = await _client.renewSession();
+    if (generation != _generation) {
+      throw const AppFailure('La solicitud fue cancelada.');
     }
+    return _parse(data);
+  }
+
+  @override
+  set onSessionRenewed(void Function(AuthSession)? callback) {
+    _client.onSessionRenewed = callback == null
+        ? null
+        : (data) => callback(_parse(data));
   }
 
   @override

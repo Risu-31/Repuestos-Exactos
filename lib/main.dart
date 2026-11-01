@@ -12,6 +12,9 @@ import 'package:autoscan/features/search/domain/repositories/search_repository.d
 import 'package:autoscan/features/history/data/repositories/api_history_repository.dart';
 import 'package:autoscan/features/history/domain/repositories/history_repository.dart';
 import 'package:flutter/material.dart';
+
+import 'dart:async';
+
 import 'package:autoscan/features/offers/data/repositories/api_offers_repository.dart';
 import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
 import 'package:go_router/go_router.dart';
@@ -76,6 +79,7 @@ class _RepuestosExactosAppState extends State<RepuestosExactosApp> {
     _history = widget.historyRepository ?? ApiHistoryRepository(_client);
     _search = widget.searchRepository ?? ApiSearchRepository(_client);
     _router = createAppRouter(_auth);
+    unawaited(_auth.restoreSession());
   }
 
   @override

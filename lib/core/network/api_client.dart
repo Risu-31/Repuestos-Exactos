@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:autoscan/core/network/session_transport.dart';
 import 'package:autoscan/core/errors/app_failure.dart';
 import 'package:autoscan/core/network/api_config.dart';
 
@@ -9,31 +10,98 @@ class ApiClient {
       connectTimeout: const Duration(seconds: 8),
       receiveTimeout: const Duration(seconds: 10),
       sendTimeout: const Duration(seconds: 8),
-      headers: {'accept': 'application/json'},
+      headers: {'accept': 'application/json', 'x-re-session': '1'},
     );
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onError: (error, handler) {
-          final requestToken = error.requestOptions.extra['sessionToken'];
-          if (error.response?.statusCode == 401 &&
-              requestToken != null &&
-              requestToken == _accessToken) {
-            _accessToken = null;
-            onUnauthorized?.call();
-          }
-          handler.next(error);
-        },
-      ),
-    );
+    if (dio == null) configureSessionTransport(_dio);
   }
 
   final Dio _dio;
   String? _accessToken;
+  int _epoch = 0;
+  bool _ending = false;
+  Future<Object?>? _refreshing;
+  void Function(Object?)? onSessionRenewed;
   void Function()? onUnauthorized;
   String? get accessToken => _accessToken;
-  void setAccessToken(String? token) => _accessToken = token;
+  void setAccessToken(String? token) {
+    _epoch++;
+    _accessToken = token;
+  }
+
+  void acceptLoginToken(String token) {
+    rememberSessionLogout(false);
+    setAccessToken(token);
+  }
+
+  bool get canRestoreSession => allowSessionRestore();
   void clearAccessTokenIfMatches(String? token) {
-    if (_accessToken == token) _accessToken = null;
+    if (_accessToken == token) setAccessToken(null);
+  }
+
+  /// Una sola renovación por cliente; las llamadas concurrentes comparten resultado.
+  Future<Object?> renewSession() {
+    if (_ending || !canRestoreSession) {
+      return Future.error(
+        const AppFailure('Vuelve a iniciar sesión.', statusCode: 401),
+      );
+    }
+    return _refreshing ??= _renew().whenComplete(() => _refreshing = null);
+  }
+
+  Future<Object?> _renew() async {
+    final epoch = _epoch;
+    Object? data;
+    for (var attempt = 0; ; attempt++) {
+      try {
+        data = await _request('POST', '/auth/refresh', authenticated: false);
+        break;
+      } on AppFailure catch (e) {
+        if (e.statusCode != 409 || attempt >= 3) rethrow;
+        await Future<void>.delayed(Duration(milliseconds: 150 * (attempt + 1)));
+      }
+    }
+    if (epoch != _epoch || _ending) {
+      throw const AppFailure('La solicitud fue cancelada.');
+    }
+    if (data is! Map<String, dynamic> ||
+        data['access_token'] is! String ||
+        !RegExp(r'^[A-Za-z0-9_-]{43}$')
+            .hasMatch(data['access_token'] as String)) {
+      throw const AppFailure('El servicio devolvió una sesión inválida.');
+    }
+    _accessToken = data['access_token'] as String;
+    try {
+      onSessionRenewed?.call(data);
+    } catch (_) {
+      setAccessToken(null);
+      onUnauthorized?.call();
+      rethrow;
+    }
+    return data;
+  }
+
+  /// Espera una rotación pendiente y revoca la cookie más reciente antes de salir.
+  Future<void> endSession() async {
+    final oldToken = _accessToken;
+    rememberSessionLogout(true);
+    _ending = true;
+    _epoch++;
+    _accessToken = null;
+    try {
+      try {
+        await _refreshing;
+      } catch (_) {}
+      await _dio.post<Object?>(
+        '/auth/logout',
+        options: Options(
+          headers: {if (oldToken != null) 'authorization': 'Bearer $oldToken'},
+        ),
+      );
+    } on DioException catch (_) {
+      throw const AppFailure('No pudimos confirmar el cierre en el servidor.');
+    } finally {
+      _ending = false;
+    }
   }
 
   Future<Object?> get(
@@ -58,8 +126,10 @@ class ApiClient {
     Map<String, dynamic>? queryParameters,
     Object? data,
     bool authenticated = true,
+    bool retryRefresh = true,
   }) async {
     final token = authenticated ? _accessToken : null;
+    final requestEpoch = _epoch;
     if (authenticated && token == null) {
       throw const AppFailure('Vuelve a iniciar sesión.', statusCode: 401);
     }
@@ -80,6 +150,40 @@ class ApiClient {
       return response.data;
     } on DioException catch (error) {
       final status = error.response?.statusCode;
+      if (status == 401 && authenticated && requestEpoch != _epoch) {
+        throw const AppFailure('La solicitud fue cancelada.');
+      }
+      if (status == 401 &&
+          authenticated &&
+          retryRefresh &&
+          !_ending &&
+          !{'/auth/logout', '/auth/refresh'}.contains(path)) {
+        if (token == _accessToken) {
+          try {
+            await renewSession();
+          } on AppFailure catch (e) {
+            if (e.statusCode == 401 || e.statusCode == 403) {
+              setAccessToken(null);
+              onUnauthorized?.call();
+            }
+            rethrow;
+          }
+        }
+        if (_accessToken != null) {
+          return _request(
+            method,
+            path,
+            data: data,
+            queryParameters: queryParameters,
+            authenticated: true,
+            retryRefresh: false,
+          );
+        }
+      }
+      if (status == 401 && authenticated && token == _accessToken) {
+        setAccessToken(null);
+        onUnauthorized?.call();
+      }
       final responseData = error.response?.data;
       final code = responseData is Map ? responseData['error'] : null;
       final authMessage = switch (code) {

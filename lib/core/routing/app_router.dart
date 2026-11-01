@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:autoscan/features/history/domain/repositories/history_repository.dart';
 import 'package:autoscan/features/history/presentation/controllers/history_controller.dart';
 import 'package:go_router/go_router.dart';
+import 'package:autoscan/features/auth/presentation/views/session_restore_screen.dart';
 import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
 import 'package:autoscan/features/offers/presentation/controllers/saved_parts_controller.dart';
 import 'package:autoscan/features/offers/presentation/views/saved_parts_screen.dart';
@@ -28,10 +29,26 @@ GoRouter createAppRouter(AuthController auth) => GoRouter(
   refreshListenable: auth,
   redirect: (context, state) {
     final onLogin = state.uri.path == '/login';
+    final onRestore = state.uri.path == '/session';
+    if (auth.restoring || auth.restoreError != null) {
+      if (onRestore) return null;
+      final from = onLogin ? '/home' : state.uri.toString();
+      return '/session?from=${Uri.encodeComponent(from)}';
+    }
     if (!auth.isAuthenticated) return onLogin ? null : '/login';
+    if (onRestore) {
+      final from = state.uri.queryParameters['from'];
+      return from != null &&
+              from.startsWith('/') &&
+              !from.startsWith('//') &&
+              !{'/login', '/session'}.contains(Uri.parse(from).path)
+          ? from
+          : '/home';
+    }
     return onLogin ? '/home' : null;
   },
   routes: [
+    GoRoute(path: '/session', builder: (_, _) => const SessionRestoreScreen()),
     GoRoute(
       path: '/login',
       builder: (_, state) =>

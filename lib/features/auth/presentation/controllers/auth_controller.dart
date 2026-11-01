@@ -10,6 +10,7 @@ import 'package:autoscan/features/settings/domain/repositories/settings_reposito
 class AuthController extends ChangeNotifier {
   AuthController(this._auth, this._settings) {
     _auth.onUnauthorized = invalidateSession;
+    _auth.onSessionRenewed = _sessionRenewed;
   }
   final AuthRepository _auth;
   final SettingsRepository _settings;
@@ -19,6 +20,8 @@ class AuthController extends ChangeNotifier {
   int _generation = 0;
   bool _disposed = false;
   bool busy = false;
+  bool restoring = false;
+  String? restoreError;
   bool loadingWorkshop = false;
   String? errorMessage;
   String? workshopError;
@@ -29,6 +32,92 @@ class AuthController extends ChangeNotifier {
 
   void _notify() {
     if (!_disposed) notifyListeners();
+  }
+
+  /// Restaura desde cookie antes de decidir si corresponde mostrar login.
+  Future<void> restoreSession() async {
+    if (restoring || busy || _disposed) return;
+    final generation = ++_generation;
+    restoring = true;
+    restoreError = null;
+    _notify();
+    try {
+      final restored = await _auth.restoreSession();
+      if (_disposed || generation != _generation) return;
+      if (restored != null) {
+        restoring = false;
+        acceptSession(restored);
+      }
+    } on AppFailure catch (e) {
+      if (generation != _generation || _disposed) return;
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        _auth.clearSession();
+        _session = null;
+      } else {
+        restoreError = 'No pudimos recuperar tu sesión. Revisa la conexión y vuelve a intentarlo.';
+      }
+    } finally {
+      if (generation == _generation && !_disposed) {
+        restoring = false;
+        _notify();
+      }
+    }
+  }
+
+  void continueToLogin() {
+    ++_generation;
+    restoring = false;
+    restoreError = null;
+    _auth.clearSession();
+    _session = null;
+    _workshop = null;
+    _notify();
+  }
+
+  void _scheduleRenewal(Duration remaining) {
+    _expiry?.cancel();
+    final delay = remaining > const Duration(minutes: 2)
+        ? remaining - const Duration(minutes: 2)
+        : remaining;
+    _expiry = Timer(delay, () => unawaited(_renewSession()));
+  }
+
+  void _sessionRenewed(AuthSession value) {
+    if (_disposed || restoring || busy || _session == null) return;
+    final previous = _session!;
+    if (previous.userId != value.userId ||
+        previous.workshopId != value.workshopId ||
+        previous.role != value.role) {
+      invalidateSession();
+      return;
+    }
+    _session = value;
+    _scheduleRenewal(value.expiresAt.difference(DateTime.now().toUtc()));
+    _notify();
+  }
+
+  Future<void> _renewSession() async {
+    if (_disposed || _session == null) return;
+    final generation = _generation;
+    try {
+      final value = await _auth.restoreSession();
+      if (_disposed || generation != _generation) return;
+      if (value == null) {
+        invalidateSession();
+        return;
+      }
+      _sessionRenewed(value);
+    } on AppFailure catch (e) {
+      if (_disposed || generation != _generation) return;
+      if (e.statusCode == 401 || e.statusCode == 403) {
+        invalidateSession();
+      } else {
+        _expiry = Timer(
+          const Duration(seconds: 30),
+          () => unawaited(_renewSession()),
+        );
+      }
+    }
   }
 
   Future<void> login(String email, String password) async {
@@ -48,7 +137,7 @@ class AuthController extends ChangeNotifier {
       _session = session;
       _workshop = null;
       _expiry?.cancel();
-      _expiry = Timer(remaining, invalidateSession);
+      _scheduleRenewal(remaining);
     } on AppFailure catch (error) {
       if (generation == _generation) errorMessage = error.message;
     } finally {
@@ -89,13 +178,15 @@ class AuthController extends ChangeNotifier {
     }
     _generation++;
     _session = session;
+    restoring = false;
+    restoreError = null;
     _workshop = null;
     busy = false;
     loadingWorkshop = false;
     workshopError = null;
     errorMessage = null;
     _expiry?.cancel();
-    _expiry = Timer(remaining, invalidateSession);
+    _scheduleRenewal(remaining);
     _notify();
     unawaited(refreshWorkshop());
   }
@@ -136,6 +227,8 @@ class AuthController extends ChangeNotifier {
 
   void invalidateSession() {
     if (_disposed) return;
+    restoring = false;
+    restoreError = null;
     _generation++;
     _expiry?.cancel();
     _auth.clearSession();
@@ -150,6 +243,8 @@ class AuthController extends ChangeNotifier {
 
   Future<void> logout() async {
     if (busy) return;
+    restoring = false;
+    restoreError = null;
     final generation = ++_generation;
     _expiry?.cancel();
     busy = true;
@@ -181,6 +276,7 @@ class AuthController extends ChangeNotifier {
     _generation++;
     _expiry?.cancel();
     _auth.onUnauthorized = null;
+    _auth.onSessionRenewed = null;
     super.dispose();
   }
 }

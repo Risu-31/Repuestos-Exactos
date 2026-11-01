@@ -1,3 +1,8 @@
+import 'package:autoscan/features/diagnostic/domain/repositories/diagnostic_sessions_repository.dart';
+import 'package:autoscan/features/diagnostic/domain/repositories/diagnostic_scanner.dart';
+import 'package:autoscan/features/diagnostic/data/repositories/api_diagnostic_sessions_repository.dart';
+import 'package:autoscan/features/diagnostic/data/repositories/obd_diagnostic_scanner.dart';
+import 'package:autoscan/features/diagnostic/data/transports/web_serial_factory.dart';
 import 'package:autoscan/features/team/data/repositories/api_team_repository.dart';
 import 'package:autoscan/features/team/domain/repositories/team_repository.dart';
 import 'package:autoscan/features/auth/data/repositories/api_google_auth_repository.dart';
@@ -39,12 +44,16 @@ class RepuestosExactosApp extends StatefulWidget {
     this.historyRepository,
     this.searchRepository,
     this.offersRepository,
+    this.diagnosticRepository,
+    this.scannerFactory,
   });
   final AuthRepository? authRepository;
   final SettingsRepository? settingsRepository;
   final HistoryRepository? historyRepository;
   final SearchRepository? searchRepository;
   final OffersRepository? offersRepository;
+  final DiagnosticSessionsRepository? diagnosticRepository;
+  final DiagnosticScanner Function()? scannerFactory;
   @override
   State<RepuestosExactosApp> createState() => _RepuestosExactosAppState();
 }
@@ -87,6 +96,16 @@ class _RepuestosExactosAppState extends State<RepuestosExactosApp> {
           Provider<GoogleAuthRepository>(
             create: (_) => ApiGoogleAuthRepository(_client),
           ),
+        Provider<DiagnosticSessionsRepository>(
+          create: (_) =>
+              widget.diagnosticRepository ??
+              ApiDiagnosticSessionsRepository(_client),
+        ),
+        Provider<DiagnosticScanner Function()>(
+          create: (_) =>
+              widget.scannerFactory ??
+              () => ObdDiagnosticScanner(createObdTransport()),
+        ),
         Provider<HistoryRepository>.value(value: _history),
         Provider<TeamRepository>(create: (_) => ApiTeamRepository(_client)),
         Provider<SearchRepository>.value(value: _search),

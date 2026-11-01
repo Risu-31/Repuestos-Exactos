@@ -83,6 +83,17 @@ class ApiClient {
       final responseData = error.response?.data;
       final code = responseData is Map ? responseData['error'] : null;
       final authMessage = switch (code) {
+        'vin_vehicle_mismatch' => 'El VIN leído no corresponde al vehículo seleccionado. La lectura se conserva.',
+        'vehicle_vin_conflict' =>
+          'Este VIN ya está registrado en otro vehículo del taller.',
+        'invalid_vin' => 'El VIN debe contener 17 caracteres válidos.',
+        'invalid_scan' =>
+          'La captura no es válida o está incompleta. Repite la lectura.',
+        'scan_context_not_found' =>
+          'El vehículo o adaptador ya no está disponible en tu taller.',
+        'diagnostic_not_found' =>
+          'El diagnóstico no está disponible para tu perfil.',
+        'invalid_device' => 'Revisa el nombre y los datos del adaptador.',
         'mercadolibre_not_configured' => 'Mercado Libre todavía no está configurado. Puedes seguir usando el catálogo local.',
         'mercadolibre_authorization_required' =>
           'Es necesario autorizar la cuenta de Mercado Libre en el servidor.',

@@ -14,10 +14,11 @@ class MarketplaceSearchPanel extends StatelessWidget {
     this.model,
     this.year,
     this.vehicleId,
+    this.sessionId,
   });
   final OffersRepository repository;
   final String code;
-  final String? model, vehicleId;
+  final String? model, vehicleId, sessionId;
   final int? year;
   @override
   Widget build(BuildContext context) => ChangeNotifierProvider(
@@ -27,6 +28,7 @@ class MarketplaceSearchPanel extends StatelessWidget {
       model: model,
       year: year,
       vehicleId: vehicleId,
+      sessionId: sessionId,
     )..initialize(),
     child: Consumer<OffersController>(
       builder: (context, state, _) => Padding(

@@ -14,10 +14,11 @@ class OffersController extends ChangeNotifier {
     this.model,
     this.year,
     this.vehicleId,
+    this.sessionId,
   });
   final OffersRepository repository;
   final String code;
-  final String? model, vehicleId;
+  final String? model, vehicleId, sessionId;
   final int? year;
   List<CatalogOption> components = const [];
   List<MarketplaceOffer> offers = const [];
@@ -81,6 +82,7 @@ class OffersController extends ChangeNotifier {
         model: model,
         year: year,
         vehicleId: vehicleId,
+        sessionId: sessionId,
       );
       if (!_disposed && generation == _generation) {
         offers = List.unmodifiable(result);

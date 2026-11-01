@@ -27,6 +27,7 @@ class _Repository implements OffersRepository {
     String? model,
     int? year,
     String? vehicleId,
+    String? sessionId,
   }) async => pending!.future;
   @override
   Future<SavedPart> save({

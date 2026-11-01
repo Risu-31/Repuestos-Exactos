@@ -100,3 +100,36 @@ Abre tu navegador y entra a:
 En Búsqueda, selecciona una falla y el componente a revisar. «Buscar en Mercado Libre» consulta el proveedor; «Guardar alternativa» registra una referencia con nota. Se consultan desde Historial → Alternativas guardadas. Los resultados de catálogo técnico se identifican sin precio ni disponibilidad confirmada. El catálogo local conserva su funcionamiento.
 
 [Contrato, configuración y límites del incremento](../Backend_Repuestos_Exactos/docs/integracion_mercadolibre.md).
+
+## Captura OBD2 por Bluetooth clásico (incremento V015)
+
+El módulo Diagnóstico reemplaza su simulación por Web Serial. Este primer transporte está dirigido a Windows + Chrome de escritorio (117 o posterior) + Vgate vLinker MC Bluetooth 3.0 SPP. Requiere localhost o HTTPS. Android/iOS nativos, BLE y Wi-Fi no están implementados en este incremento. Las descripciones del Hito 1 anteriores documentan el prototipo original; el resumen diario 3/12 todavía es de prototipo.
+
+Recorrido de uso:
+
+1. Conectar el adaptador al vehículo y emparejarlo en Windows siguiendo las instrucciones del fabricante. Cerrar otras aplicaciones que usen su puerto.
+2. Ingresar como propietario o mecánico. En Diagnóstico elegir el vehículo; «Registrar vehículo» permite dar de alta modelo, año, patente y motor cuando el taller está vacío.
+3. El propietario registra una vez el adaptador en el inventario del taller. Es un registro lógico: el navegador no expone su MAC y no se inventa una.
+4. Elegir el adaptador, declarar kilometraje y pulsar Conectar. Chrome solicita elegir el puerto SPP real. Pulsar Leer fallas con el vehículo en las condiciones indicadas por el fabricante.
+5. Revisar códigos almacenados, pendientes y permanentes, ECU y estado de cada servicio. Guardar diagnóstico conserva todas las observaciones, incluidas las no catalogadas; reintentar un guardado no duplica la sesión.
+6. Historial → Ver diagnóstico → Buscar repuestos para un código catalogado. La búsqueda externa y las alternativas guardadas conservan la sesión y el vehículo de origen. Guardar una alternativa no compra, no crea una cotización ni cambia el estado de la sesión.
+
+Separación: widgets/controladores → contratos de dominio → repositorio HTTP o motor ELM327 → transporte Web Serial. El motor admite sólo comandos de identificación/configuración y lectura; el comando 04 de borrado no está permitido. Los dobles de protocolo están únicamente en test/support; producción no devuelve fallas simuladas si falta hardware.
+
+Validación: flutter analyze, flutter test y flutter build web --release. El test optativo test/obd_backend_flow_test.dart requiere RUN_OBD_HTTP_TESTS=true, TEST_API_URL, DEMO_PASSWORD y una DB_NAME con prefijo re_api_preflight_. Usar exclusivamente una copia desechable de PostgreSQL y una API QA apuntando a ella: esta prueba registra vehículos, sesiones y alternativas. La evidencia de este incremento usa respuestas seriales controladas y un proveedor externo controlado, con HTTP/PostgreSQL reales.
+
+**Pendiente de aceptación física:** no se contó con el adaptador ni el vehículo durante la implementación. Emparejamiento, selector de puerto, firmware, protocolo del auto y lecturas reales deben comprobarse con el vLinker MC. Este alcance cubre OBD genérico, no garantiza diagnóstico ABS/airbag ni servicios propios de cada marca.
+
+[Traza del incremento](../Backend_Repuestos_Exactos/docs/evidencia/traza_bluetooth_obd2.json) · [Evidencia y límites](../Backend_Repuestos_Exactos/docs/evidencia/bluetooth_validacion.json).
+
+### VIN automático
+
+Al leer las fallas se consulta también el VIN mediante modo 09 PID 02 (0902). Se reensamblan respuestas CAN de 11/29 bits y segmentos heredados por ECU; el valor debe contener 17 caracteres válidos y coincidir entre las ECU que lo entreguen. NO DATA, falta de soporte, respuesta inválida o timeout de VIN no descartan DTC ya leídos. La identificación se consulta al final y nunca borra fallas.
+
+Ya no hace falta elegir vehículo ni kilometraje para conectar y leer. Si el VIN existe entre los vehículos visibles del taller, se selecciona automáticamente. Si no existe, se conserva la lectura y se permite seleccionar o registrar el vehículo después. El formulario recibe el VIN leído; marca, modelo, año, patente y motor requieren confirmación manual. No hay un servicio externo de decodificación de VIN ni se deduce automáticamente «Peugeot 3008 2017» de un VIN nuevo.
+
+Al guardar, la API contrasta el VIN: completa el campo existente del vehículo únicamente si estaba vacío y rechaza un VIN distinto. La asociación y la creación de sesión/fallas son una misma transacción. Un conflicto permite corregir el vehículo conservando la lectura; un fallo de red mantiene la clave y los datos para reintentar sin duplicar. El detalle del historial muestra el VIN registrado, sujeto a las reglas existentes de acceso y anonimización.
+
+V016 añade Peugeot / 3008 al catálogo para la prueba prevista con un auto de 2017. No crea el auto ni una identidad ficticia. La compatibilidad y lectura real de ese vehículo siguen pendientes de prueba con el adaptador.
+
+Referencia de protocolo: [ELM327, respuestas multilínea y VIN](https://www.elmelectronics.com/wp-content/uploads/2016/07/ELM327DSH.pdf#page=42).

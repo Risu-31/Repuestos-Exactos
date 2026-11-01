@@ -34,6 +34,7 @@ class ApiOffersRepository implements OffersRepository {
     String? model,
     int? year,
     String? vehicleId,
+    String? sessionId,
   }) async {
     final data = await client.post(
       '/offers/search',
@@ -43,6 +44,7 @@ class ApiOffersRepository implements OffersRepository {
         'model': ?model,
         'year': ?year,
         'vehicle_id': ?vehicleId,
+        'session_id': ?sessionId,
       },
     );
     return _items(data).map(parseOffer).toList();

@@ -1,3 +1,9 @@
+import 'package:autoscan/features/diagnostic/domain/repositories/diagnostic_scanner.dart';
+import 'package:autoscan/features/diagnostic/domain/repositories/diagnostic_sessions_repository.dart';
+import 'package:autoscan/features/diagnostic/presentation/controllers/diagnostic_controller.dart';
+import 'package:autoscan/features/diagnostic/presentation/controllers/diagnostic_detail_controller.dart';
+import 'package:autoscan/features/diagnostic/presentation/views/diagnostic_detail_screen.dart';
+import 'package:autoscan/features/diagnostic/presentation/views/diagnostic_parts_screen.dart';
 import 'package:autoscan/features/team/presentation/views/team_screen.dart';
 import 'package:autoscan/features/search/domain/repositories/search_repository.dart';
 import 'package:autoscan/features/search/presentation/controllers/catalog_search_controller.dart';
@@ -37,7 +43,35 @@ GoRouter createAppRouter(AuthController auth) => GoRouter(
         GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
         GoRoute(
           path: '/diagnostic',
-          builder: (_, _) => const DiagnosticScreen(),
+          builder: (context, _) => ChangeNotifierProvider(
+            create: (_) => DiagnosticController(
+              context.read<DiagnosticScanner Function()>()(),
+              context.read<DiagnosticSessionsRepository>(),
+            )..load(),
+            child: const DiagnosticScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/diagnostic/:id',
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (_) => DiagnosticDetailController(
+              context.read<DiagnosticSessionsRepository>(),
+              state.pathParameters['id']!,
+            )..load(),
+            child: const DiagnosticDetailScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/diagnostic-parts/:id',
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (_) => DiagnosticDetailController(
+              context.read<DiagnosticSessionsRepository>(),
+              state.pathParameters['id']!,
+            )..load(),
+            child: DiagnosticPartsScreen(
+              code: state.uri.queryParameters['code'] ?? '',
+            ),
+          ),
         ),
         GoRoute(
           path: '/search',

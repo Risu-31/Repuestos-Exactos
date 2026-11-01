@@ -11,6 +11,7 @@ abstract interface class OffersRepository {
     String? model,
     int? year,
     String? vehicleId,
+    String? sessionId,
   });
   Future<SavedPart> save({
     required String token,

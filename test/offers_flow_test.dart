@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:autoscan/features/offers/domain/entities/marketplace_provider.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_search_result.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autoscan/core/errors/app_failure.dart';
@@ -21,14 +24,16 @@ class _Repository implements OffersRepository {
     const CatalogOption(id: 'c', name: 'Bujía'),
   ];
   @override
-  Future<List<MarketplaceOffer>> search({
+  Future<MarketplaceSearchResult> search({
     required String code,
     required String componentId,
+    MarketplaceProvider provider = MarketplaceProvider.mercadolibre,
     String? model,
     int? year,
     String? vehicleId,
     String? sessionId,
-  }) async => pending!.future;
+  }) async =>
+      MarketplaceSearchResult(items: await pending!.future, provider: provider);
   @override
   Future<SavedPart> save({
     required String token,

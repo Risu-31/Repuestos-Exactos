@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_provider.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_environment.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
@@ -43,12 +45,33 @@ class MarketplaceSearchPanel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Repuestos en Mercado Libre',
+                      'Repuestos en ${state.provider.label}',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     const Text(
                       'Una falla puede tener distintas causas. Elige el componente que deseas cotizar después de revisar el vehículo.',
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<MarketplaceProvider>(
+                      key: const Key('marketplace-provider'),
+                      initialValue: state.provider,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        floatingLabelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        labelText: 'Proveedor de repuestos',
+                      ),
+                      items: MarketplaceProvider.values
+                          .map(
+                            (provider) => DropdownMenuItem(
+                              value: provider,
+                              child: Text(provider.label),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: state.selectProvider,
                     ),
                     const SizedBox(height: 16),
                     if (state.loadingComponents)
@@ -95,7 +118,7 @@ class MarketplaceSearchPanel extends StatelessWidget {
                       label: Text(
                         state.loading
                             ? 'Buscando ofertas…'
-                            : 'Buscar en Mercado Libre',
+                            : 'Buscar en ${state.provider.label}',
                       ),
                     ),
                     if (state.error != null)
@@ -134,11 +157,25 @@ class MarketplaceSearchPanel extends StatelessWidget {
                 ),
               ),
             ),
+            if (state.environment == MarketplaceEnvironment.sandbox)
+              Container(
+                key: const Key('sandbox-search-notice'),
+                margin: const EdgeInsets.only(top: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary
+                      .withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Text(
+                  'Sandbox de eBay · Datos de prueba. No representan precios ni disponibilidad comercial real.',
+                ),
+              ),
             if (state.searched && state.offers.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Text(
-                  'Mercado Libre no devolvió ofertas para este componente y vehículo.',
+                  '${state.provider.label} no devolvió ofertas para este componente y vehículo.',
                 ),
               ),
             if (state.offers.any((offer) => offer.kind == 'catalog_product'))

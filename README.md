@@ -143,3 +143,9 @@ Cerrar sesión revoca la familia y elimina la cookie. Ante cierre sin red, la ap
 Usar el mismo hostname en web y API (localhost/localhost o 127.0.0.1/127.0.0.1). En producción: HTTPS, mismo sitio y CORS con orígenes exactos. La persistencia automática implementada aquí es web; las plataformas nativas mantienen su alcance previo.
 
 [Contrato y límites](../Backend_Repuestos_Exactos/docs/autenticacion.md) · [Evidencia de validación](../Backend_Repuestos_Exactos/docs/evidencia/sesiones_persistentes_validacion.json).
+
+## Búsqueda externa con eBay
+
+El selector de proveedor permite Mercado Libre y eBay. El backend decide las credenciales y el entorno; Flutter no contiene secretos. Los resultados y las alternativas guardadas identifican proveedor y Sandbox. Las referencias de prueba muestran un aviso y no representan una cotización comercial. Se conserva la moneda original y se exige revisión técnica de compatibilidad.
+
+La consulta queda obsoleta al cambiar de proveedor o componente. El guardado conserva su idempotencia; un resultado tardío no reemplaza el contexto actual. El historial sigue disponible en `/saved-parts` y desde Historial. Se requiere API y base de datos actualizadas con V018.

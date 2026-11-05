@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_environment.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/link.dart';
@@ -61,7 +62,7 @@ class SavedPartsScreen extends StatelessWidget {
                         Icon(Icons.bookmarks_outlined, size: 40),
                         SizedBox(height: 12),
                         Text(
-                          'Aún no hay alternativas guardadas. Búscalas en Mercado Libre desde Búsqueda.',
+                          'Aún no hay alternativas guardadas. Búscalas en Mercado Libre o eBay desde Búsqueda.',
                         ),
                       ],
                     ),
@@ -80,7 +81,17 @@ class SavedPartsScreen extends StatelessWidget {
                               style: theme.textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
-                            Text('Mercado Libre · ${item.externalId}'),
+                            Text(
+                              '${item.provider.label}${item.environment == MarketplaceEnvironment.sandbox ? ' · Sandbox' : ''} · ${item.externalId}',
+                            ),
+                            if (item.environment ==
+                                MarketplaceEnvironment.sandbox)
+                              const Padding(
+                                padding: EdgeInsets.only(top: 8),
+                                child: Text(
+                                  'Referencia de prueba. No usar para una cotización comercial.',
+                                ),
+                              ),
                             if (item.vehicle != null) Text(item.vehicle!),
                             const SizedBox(height: 6),
                             Text(
@@ -104,6 +115,10 @@ class SavedPartsScreen extends StatelessWidget {
                                 uri: Uri.parse(item.url!),
                                 target: LinkTarget.blank,
                                 builder: (context, follow) => TextButton.icon(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor:
+                                        theme.colorScheme.onSurface,
+                                  ),
                                   onPressed: follow,
                                   icon: const Icon(Icons.open_in_new, size: 18),
                                   label: const Text(

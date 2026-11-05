@@ -198,16 +198,21 @@ class ApiClient {
         'diagnostic_not_found' =>
           'El diagnóstico no está disponible para tu perfil.',
         'invalid_device' => 'Revisa el nombre y los datos del adaptador.',
+        'ebay_not_configured' => 'eBay todavía no está configurado. Puedes consultar el otro proveedor.',
+        'ebay_credentials_rejected' => 'No se pudo autorizar eBay. Revisa las credenciales del entorno en el servidor.',
+        'provider_not_configured' =>
+          'El proveedor seleccionado no está habilitado.',
+        'invalid_offer_provider' => 'Selecciona un proveedor válido.',
         'mercadolibre_not_configured' => 'Mercado Libre todavía no está configurado. Puedes seguir usando el catálogo local.',
         'mercadolibre_authorization_required' =>
           'Es necesario autorizar la cuenta de Mercado Libre en el servidor.',
-        'provider_access_denied' => 'Mercado Libre no autorizó la búsqueda de publicaciones para esta aplicación. El catálogo local sigue disponible.',
+        'provider_access_denied' => 'El proveedor no autorizó la búsqueda para esta aplicación. El catálogo local sigue disponible.',
         'provider_rate_limited' =>
-          'Mercado Libre alcanzó su límite de consultas. Intenta más tarde.',
+          'El proveedor alcanzó su límite de consultas. Intenta más tarde.',
         'provider_timeout' ||
         'provider_unavailable' ||
         'provider_invalid_response' =>
-          'No pudimos consultar Mercado Libre. Intenta nuevamente.',
+          'No pudimos consultar el proveedor de repuestos. Intenta nuevamente.',
         'offer_expired' =>
           'La oferta venció. Repite la búsqueda antes de guardar.',
         'idempotency_conflict' =>

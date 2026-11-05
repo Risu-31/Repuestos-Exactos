@@ -1,4 +1,8 @@
 import 'dart:convert';
+
+import 'package:autoscan/features/offers/domain/entities/marketplace_provider.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_environment.dart';
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -23,6 +27,15 @@ class OffersController extends ChangeNotifier {
   List<CatalogOption> components = const [];
   List<MarketplaceOffer> offers = const [];
   String? selectedComponent, error, message;
+  MarketplaceProvider provider = MarketplaceProvider.mercadolibre;
+  MarketplaceEnvironment? environment;
+
+  void selectProvider(MarketplaceProvider? value) {
+    if (value == null || value == provider) return;
+    provider = value;
+    select(selectedComponent);
+  }
+
   bool loadingComponents = false, loading = false, searched = false;
   final saving = <String>{}, saved = <String>{};
   final _saveKeys = <String, String>{};
@@ -51,6 +64,7 @@ class OffersController extends ChangeNotifier {
 
   void select(String? id) {
     selectedComponent = id;
+    environment = null;
     _generation++;
     loading = false;
     offers = const [];
@@ -79,13 +93,15 @@ class OffersController extends ChangeNotifier {
       final result = await repository.search(
         code: code,
         componentId: component,
+        provider: provider,
         model: model,
         year: year,
         vehicleId: vehicleId,
         sessionId: sessionId,
       );
       if (!_disposed && generation == _generation) {
-        offers = List.unmodifiable(result);
+        offers = List.unmodifiable(result.items);
+        environment = result.environment;
         searched = true;
       }
     } on AppFailure catch (e) {
@@ -116,16 +132,17 @@ class OffersController extends ChangeNotifier {
     message = null;
     error = null;
     _notify();
+    final generation = _generation;
     final fingerprint = jsonEncode([offer.token, note.trim()]);
     final key = _saveKeys.putIfAbsent(fingerprint, _uuid);
     try {
       await repository.save(token: offer.token, key: key, note: note.trim());
-      if (!_disposed) {
+      if (!_disposed && generation == _generation) {
         saved.add(offer.token);
         message = 'Alternativa guardada en el historial del taller.';
       }
     } on AppFailure catch (e) {
-      if (!_disposed) error = e.message;
+      if (!_disposed && generation == _generation) error = e.message;
     } finally {
       if (!_disposed) {
         saving.remove(offer.token);

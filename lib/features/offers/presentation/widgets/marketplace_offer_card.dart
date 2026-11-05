@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_environment.dart';
 import 'package:url_launcher/link.dart';
 import 'package:autoscan/features/offers/domain/entities/marketplace_offer.dart';
 
@@ -25,7 +26,7 @@ class MarketplaceOfferCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Mercado Libre · ${catalog ? 'Catálogo técnico' : 'Publicación'} · ${offer.externalId}',
+              '${offer.provider.label}${offer.environment == MarketplaceEnvironment.sandbox ? ' · Sandbox' : ''} · ${catalog ? 'Catálogo técnico' : 'Publicación'} · ${offer.externalId}',
               style: theme.textTheme.labelMedium,
             ),
             const SizedBox(height: 8),
@@ -44,6 +45,8 @@ class MarketplaceOfferCard extends StatelessWidget {
             Text(
               catalog
                   ? 'Referencia de catálogo ${offer.catalogStatus == 'inactive' ? 'inactiva' : 'activa'}. No confirma una publicación disponible, precio ni stock.'
+                  : offer.environment == MarketplaceEnvironment.sandbox
+                  ? 'Precio de prueba. No es una cotización comercial.'
                   : 'Precio publicado, sin margen del taller. Envío e impuestos por confirmar.',
             ),
             const SizedBox(height: 6),
@@ -62,6 +65,9 @@ class MarketplaceOfferCard extends StatelessWidget {
                     uri: Uri.parse(offer.url!),
                     target: LinkTarget.blank,
                     builder: (context, follow) => TextButton.icon(
+                      style: TextButton.styleFrom(
+                        foregroundColor: theme.colorScheme.onSurface,
+                      ),
                       onPressed: follow,
                       icon: const Icon(Icons.open_in_new, size: 18),
                       label: const Text('Ver publicación'),

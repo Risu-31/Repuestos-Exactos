@@ -2,7 +2,8 @@ import 'package:autoscan/core/errors/app_failure.dart';
 import 'package:autoscan/core/network/api_client.dart';
 import 'package:autoscan/features/search/domain/entities/catalog_option.dart';
 import 'package:autoscan/features/offers/data/models/offer_dto.dart';
-import 'package:autoscan/features/offers/domain/entities/marketplace_offer.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_provider.dart';
+import 'package:autoscan/features/offers/domain/entities/marketplace_search_result.dart';
 import 'package:autoscan/features/offers/domain/entities/saved_part.dart';
 import 'package:autoscan/features/offers/domain/entities/saved_parts_page.dart';
 import 'package:autoscan/features/offers/domain/repositories/offers_repository.dart';
@@ -28,9 +29,10 @@ class ApiOffersRepository implements OffersRepository {
         );
       }).toList();
   @override
-  Future<List<MarketplaceOffer>> search({
+  Future<MarketplaceSearchResult> search({
     required String code,
     required String componentId,
+    MarketplaceProvider provider = MarketplaceProvider.mercadolibre,
     String? model,
     int? year,
     String? vehicleId,
@@ -39,6 +41,7 @@ class ApiOffersRepository implements OffersRepository {
     final data = await client.post(
       '/offers/search',
       data: {
+        'provider': provider.name,
         'dtc': code,
         'component_id': componentId,
         'model': ?model,
@@ -47,7 +50,23 @@ class ApiOffersRepository implements OffersRepository {
         'session_id': ?sessionId,
       },
     );
-    return _items(data).map(parseOffer).toList();
+    final response = offerObject(data);
+    final source = offerProvider(response),
+        environment = offerEnvironment(response);
+    final items = _items(data).map(parseOffer).toList();
+    if (source != provider ||
+        items.any(
+          (item) => item.provider != source || item.environment != environment,
+        )) {
+      throw const AppFailure(
+        'El servicio devolvió resultados de otro proveedor o entorno.',
+      );
+    }
+    return MarketplaceSearchResult(
+      items: items,
+      provider: source,
+      environment: environment,
+    );
   }
 
   @override

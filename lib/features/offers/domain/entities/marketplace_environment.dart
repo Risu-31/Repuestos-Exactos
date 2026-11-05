@@ -1,0 +1,1 @@
+enum MarketplaceEnvironment { production, sandbox }

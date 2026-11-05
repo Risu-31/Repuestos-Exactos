@@ -149,9 +149,9 @@ void main() {
       vehicleId: v.id,
       sessionId: id,
     );
-    expect(found, isNotEmpty);
+    expect(found.items, isNotEmpty);
     await offers.save(
-      token: found.first.token,
+      token: found.items.first.token,
       key: newUuid(),
       note: 'Integración aislada del escáner',
     );
